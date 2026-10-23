@@ -1,0 +1,9 @@
+{
+  "api_url": "https://jsonplaceholder.typicode.com/posts/",
+  "csv_path": "cuentas.csv",
+  "db_path": "data/estado_proceso.db",
+  "output_path": "salida.xlsx",
+  "log_path": "logs/proceso.log",
+  "max_retries": 3,
+  "backoff_factor": 2
+}
