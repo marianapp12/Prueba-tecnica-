@@ -36,18 +36,21 @@ El programa lee el CSV, valida los identificadores, consulta la API, guarda los 
 ## 4. Manejo de errores y reintentos
 El programa distingue los errores según el resultado de cada consulta:
 
-| Situación | Tratamiento |
-| Consulta exitosa (HTTP 200) | Guarda los datos obtenidos. |
+| Situación | Tratamiento | 
+| ------- | ------- |
+| Consulta exitosa (HTTP 200) | Guarda los datos obtenidos. | 
 | Identificador inexistente (HTTP 404) | Registra el resultado como `no_existe`. |
 | Otro error HTTP 4xx | Registra el resultado como `invalido`. |
 | Error del servidor HTTP 5xx | Reintenta la consulta. |
-| Problemas de conexión o tiempo de espera | Reintenta la consulta. |
+| Problemas de conexión o tiempo de espera | Reintenta la consulta. | 
 | Identificador vacío | Lo registra como inválido sin consultar la API. |
 | Identificador no numérico o menor o igual a cero | Lo registra como inválido sin consultar la API. |
 
 Los reintentos se aplican a los errores técnicos que podrían ser temporales, como los problemas de conexión y los errores HTTP 5xx. No se reintentan los errores HTTP 404 ni los demás errores HTTP 4xx, porque repetir la consulta normalmente no cambia la respuesta.
 
 Con `max_retries = 3`, se realiza un intento inicial y hasta tres reintentos. El parámetro `backoff_factor = 2` establece esperas crecientes de 2, 4 y 8 segundos entre intentos.
+
+
 
 ## 5. Decisión sobre los identificadores repetidos
 
