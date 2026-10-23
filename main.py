@@ -201,7 +201,6 @@ def consultar_cuenta_en_api(id_cuenta):
                     "Intentos": intento, "max_intentos": max_intentos_totales
                 }
 
-            res.raise_for_status()
             try:
                 data = res.json()
             except ValueError as e:
@@ -338,7 +337,6 @@ def ejecutar_proceso():
                     "UserID": None, "Título": None, "Cuerpo": None
                 }
                 guardar_resultado_cuenta(reg)
-                resueltos.add(clave)
                 continue
 
             # CASO INVÁLIDO
@@ -351,7 +349,6 @@ def ejecutar_proceso():
                     "UserID": None, "Título": None, "Cuerpo": None
                 }
                 guardar_resultado_cuenta(reg)
-                resueltos.add(clave)
                 continue
 
             # CASO NORMAL: CONSULTA API
@@ -386,8 +383,6 @@ def ejecutar_proceso():
                 "Cuerpo": res_api["Cuerpo"]
             }
             guardar_resultado_cuenta(reg)
-            if reg["Estado"] != "error_tecnico":
-                resueltos.add(clave)
 
     except KeyboardInterrupt:
         print("\n")

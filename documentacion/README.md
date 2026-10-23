@@ -91,16 +91,24 @@ La decisión de deduplicar reduce llamadas y tiempo de ejecución sin perder la 
 
 ## Errores y reintentos
 
+Los números de esta tabla son **códigos HTTP**: la API los devuelve para explicar cómo terminó la consulta. Una forma sencilla de recordarlos es:
+
+- **404 — No encontrado:** ese identificador no existe en la API.
+- **408 — Se agotó el tiempo:** la API tardó demasiado en responder.
+- **429 — Demasiadas solicitudes:** la API pide bajar el ritmo y esperar.
+- **5xx — Problema del servidor:** la API tuvo un fallo temporal. `5xx` significa cualquier código entre 500 y 599.
+- **4xx — Problema con la solicitud:** `4xx` significa cualquier código entre 400 y 499. En este programa, 404 y 408/429 tienen un tratamiento propio; los demás se registran como solicitud inválida.
+
 | Situación | Resultado | ¿Se reintenta? | Criterio |
 | --- | --- | --- | --- |
 | Respuesta exitosa | Guarda los datos de la API. | No | La consulta terminó correctamente. |
-| HTTP 404 | Registra `no_existe`. | No | Repetir la misma consulta no hará que la cuenta exista. |
-| HTTP 408 o 429 | Reintenta; agotados los intentos, registra `error_tecnico`. | Sí | La solicitud agotó el tiempo o el servicio pidió reducir el ritmo; una espera puede ayudar. |
-| Otro HTTP 4xx | Registra `invalido`. | No | Es un error de cliente o de solicitud, no un problema temporal del servidor. |
-| HTTP 5xx | Reintenta; agotados los intentos, registra `error_tecnico`. | Sí | El servicio remoto podría recuperarse. |
+| 404 — No encontrado | Registra `no_existe`. | No | Repetir la misma consulta no hará que la cuenta exista. |
+| 408 — Se agotó el tiempo; 429 — Demasiadas solicitudes | Reintenta; agotados los intentos, registra `error_tecnico`. | Sí | Esperar antes de consultar otra vez puede ayudar. |
+| Otro código 4xx — Problema con la solicitud | Registra `invalido`. | No | Repetir la solicitud sin cambiarla normalmente dará el mismo resultado. |
+| Código 5xx — Problema del servidor | Reintenta; agotados los intentos, registra `error_tecnico`. | Sí | El servicio remoto podría recuperarse. |
 | Error de conexión o tiempo de espera | Reintenta; agotados los intentos, registra `error_tecnico`. | Sí | El problema puede ser transitorio. |
 
-La frontera está en `consultar_cuenta_en_api()` de `main.py`: se reintentan los errores de conexión, los tiempos de espera y las respuestas HTTP 408, 429 y 5xx. Las respuestas 404 y los demás errores 4xx se registran sin reintentar. Los identificadores inválidos se descartan antes de consultar la API. El criterio es volver a intentar solo cuando una nueva solicitud, después de esperar, podría cambiar el resultado.
+La regla fácil de recordar es: **se reintenta cuando el problema podría desaparecer esperando; no se reintenta cuando repetir la misma solicitud daría el mismo resultado**. En `consultar_cuenta_en_api()` de `main.py`, esto significa reintentar errores de conexión, tiempos de espera y códigos 408, 429 y 5xx. El 404 y los demás códigos 4xx se registran sin reintentar. Los identificadores inválidos se detectan antes de consultar la API.
 
 Con `max_retries = 3`, se hace un intento inicial y hasta tres reintentos. Con `backoff_factor = 2`, las esperas son 2, 4 y 8 segundos.
 
