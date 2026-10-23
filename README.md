@@ -46,12 +46,6 @@ El programa distingue los errores según el resultado de cada consulta:
 | Identificador vacío | Lo registra como inválido sin consultar la API. |
 | Identificador no numérico o menor o igual a cero | Lo registra como inválido sin consultar la API. |
 
-Los reintentos se aplican a los errores técnicos que podrían ser temporales, como los problemas de conexión y los errores HTTP 5xx. No se reintentan los errores HTTP 404 ni los demás errores HTTP 4xx, porque repetir la consulta normalmente no cambia la respuesta.
-
-Con `max_retries = 3`, se realiza un intento inicial y hasta tres reintentos. El parámetro `backoff_factor = 2` establece esperas crecientes de 2, 4 y 8 segundos entre intentos.
-
-
-
 ## 5. Decisión sobre los identificadores repetidos
 
 Cuando un identificador aparece varias veces en el CSV, se consulta una sola vez durante el procesamiento del archivo. En el Excel se registra la cantidad de apariciones y los números de línea donde se encontró, mediante las columnas `Repeticiones` y `Líneas CSV`.
